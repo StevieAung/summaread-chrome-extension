@@ -1,35 +1,10 @@
 (function () {
   const messageTypes = window.SummaRead.MESSAGE_TYPES;
   let currentSettings = null;
-  let originalInlineStyles = null;
-
-  function rememberOriginalStyles() {
-    if (originalInlineStyles) {
-      return;
-    }
-
-    originalInlineStyles = {
-      fontSize: document.documentElement.style.fontSize,
-      lineHeight: document.documentElement.style.lineHeight,
-      letterSpacing: document.documentElement.style.letterSpacing,
-      fontFamily: document.documentElement.style.fontFamily
-    };
-  }
 
   function applySettings(settings) {
     currentSettings = settings;
-    rememberOriginalStyles();
-
-    document.documentElement.style.fontSize = `${settings.fontSizeScale * 100}%`;
-    document.documentElement.style.lineHeight = String(settings.lineHeightScale);
-    document.documentElement.style.letterSpacing = `${settings.letterSpacing}px`;
-    document.documentElement.style.fontFamily =
-      settings.fontFamily === 'default' ? originalInlineStyles.fontFamily : settings.fontFamily;
-
-    document.documentElement.classList.toggle('summaread-contrast', settings.contrastMode);
-    document.documentElement.classList.toggle('summaread-highlight-links', settings.highlightLinks);
-    document.documentElement.classList.toggle('summaread-hide-images', settings.hideImages);
-    document.documentElement.classList.toggle('summaread-stop-animations', settings.stopAnimations);
+    window.SummaRead.accessibility.applySettings(settings);
   }
 
   function ensureSidebar() {
@@ -92,7 +67,8 @@
     }
 
     if (message.type === messageTypes.RESET_SETTINGS) {
-      applySettings(window.SummaRead.DEFAULT_SETTINGS);
+      currentSettings = window.SummaRead.DEFAULT_SETTINGS;
+      window.SummaRead.accessibility.resetSettings();
       sendResponse({ ok: true });
       return true;
     }
@@ -104,6 +80,18 @@
     }
 
     return false;
+  });
+
+  window.addEventListener('summaread:message', (event) => {
+    const message = event.detail;
+
+    if (!message || !message.type) {
+      return;
+    }
+
+    if (message.type === messageTypes.TOGGLE_SIDEBAR) {
+      toggleSidebar();
+    }
   });
 
   initialize();

@@ -35,8 +35,10 @@
         "modules/constants.js",
         "modules/storage.js",
         "modules/extractive.js",
+        "modules/controls.js",
         "content/page-text.js",
-        "content/content.js"
+        "content/content.js",
+        "content/sidebar.js"
       ],
       "css": [
         "content/content.css"
