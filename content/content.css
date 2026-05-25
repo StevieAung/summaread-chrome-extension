@@ -1,0 +1,76 @@
+html.summaread-contrast,
+html.summaread-contrast body {
+  background: #000 !important;
+  color: #fff !important;
+}
+
+html.summaread-contrast a {
+  color: #7dd3fc !important;
+}
+
+html.summaread-highlight-links a {
+  outline: 2px solid #f59e0b !important;
+  outline-offset: 2px !important;
+  text-decoration: underline !important;
+}
+
+html.summaread-hide-images img,
+html.summaread-hide-images picture,
+html.summaread-hide-images video,
+html.summaread-hide-images svg {
+  visibility: hidden !important;
+}
+
+html.summaread-stop-animations *,
+html.summaread-stop-animations *::before,
+html.summaread-stop-animations *::after {
+  animation: none !important;
+  scroll-behavior: auto !important;
+  transition: none !important;
+}
+
+#summaread-sidebar {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 2147483647;
+  width: min(360px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  border: 1px solid #d4d4d8;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #18181b;
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.22);
+  font-family: Arial, sans-serif;
+}
+
+#summaread-sidebar[hidden] {
+  display: none !important;
+}
+
+.summaread-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-bottom: 1px solid #e4e4e7;
+  font-weight: 700;
+}
+
+.summaread-sidebar-body {
+  padding: 14px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.summaread-sidebar-button {
+  border: 0;
+  border-radius: 6px;
+  background: #18181b;
+  color: #ffffff;
+  cursor: pointer;
+  font: inherit;
+  padding: 6px 10px;
+}

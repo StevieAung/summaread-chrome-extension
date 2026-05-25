@@ -1,0 +1,13 @@
+(function () {
+  window.SummaRead = window.SummaRead || {};
+
+  window.SummaRead.MESSAGE_TYPES = {
+    SUMMARIZE_TEXT: 'SUMMARIZE_TEXT',
+    EXTRACT_TEXT: 'EXTRACT_TEXT',
+    SPEAK_TEXT: 'SPEAK_TEXT',
+    STOP_SPEECH: 'STOP_SPEECH',
+    UPDATE_SETTINGS: 'UPDATE_SETTINGS',
+    RESET_SETTINGS: 'RESET_SETTINGS',
+    TOGGLE_SIDEBAR: 'TOGGLE_SIDEBAR'
+  };
+})();

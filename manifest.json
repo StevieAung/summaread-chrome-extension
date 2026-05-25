@@ -1,0 +1,45 @@
+{
+  "manifest_version": 3,
+  "name": "SummaRead",
+  "version": "1.0.0",
+  "description": "An AI-integrated web accessibility assistant for summarizing and improving readability.",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "tts"
+  ],
+  "background": {
+    "service_worker": "background/service-worker.js"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "SummaRead",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "modules/constants.js",
+        "modules/storage.js",
+        "content/content.js"
+      ],
+      "css": [
+        "content/content.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}
