@@ -32,15 +32,6 @@
     document.documentElement.classList.toggle('summaread-stop-animations', settings.stopAnimations);
   }
 
-  function extractReadableText() {
-    const clone = document.body.cloneNode(true);
-    clone.querySelectorAll('script, style, noscript, iframe, nav, footer').forEach((node) => {
-      node.remove();
-    });
-
-    return clone.textContent.replace(/\s+/g, ' ').trim();
-  }
-
   function ensureSidebar() {
     let sidebar = document.getElementById('summaread-sidebar');
 
@@ -86,7 +77,8 @@
     }
 
     if (message.type === messageTypes.EXTRACT_TEXT) {
-      sendResponse({ ok: true, text: extractReadableText() });
+      const page = window.SummaRead.pageText.extract();
+      sendResponse({ ok: true, ...page });
       return true;
     }
 

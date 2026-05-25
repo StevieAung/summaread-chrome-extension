@@ -94,16 +94,13 @@
       return;
     }
 
-    await chrome.runtime.sendMessage({
-      type: messageTypes.SPEAK_TEXT,
-      text
-    });
-    setStatus('Speaking page text');
+    const result = window.SummaRead.tts.speak(text);
+    setStatus(result.message);
   });
 
   document.getElementById('stopSpeech').addEventListener('click', async () => {
-    await chrome.runtime.sendMessage({ type: messageTypes.STOP_SPEECH });
-    setStatus('Speech stopped');
+    const result = window.SummaRead.tts.stop();
+    setStatus(result.message);
   });
 
   async function initialize() {

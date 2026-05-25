@@ -35,6 +35,7 @@
         "modules/constants.js",
         "modules/storage.js",
         "modules/extractive.js",
+        "content/page-text.js",
         "content/content.js"
       ],
       "css": [
