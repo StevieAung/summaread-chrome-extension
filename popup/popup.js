@@ -14,6 +14,8 @@
   const summaryOutput = document.getElementById('summary-output');
   const wordCountBadge = document.getElementById('word-count-badge');
   const summarySpinner = document.getElementById('summary-spinner');
+  const summaryButtonLabel = document.getElementById('summary-button-label');
+  const summariseButton = document.getElementById('summarise-page');
   const speakSummaryButton = document.getElementById('speak-summary');
   const rateInput = document.getElementById('speech-rate');
   const rateValue = document.getElementById('rate-value');
@@ -33,7 +35,38 @@
 
   function setLoading(isLoading) {
     summarySpinner.classList.toggle('hidden', !isLoading);
-    document.getElementById('summarise-page').disabled = isLoading;
+    summariseButton.disabled = isLoading;
+    summaryButtonLabel.textContent = isLoading ? 'Summarising' : 'Summarise This Page';
+    summaryButtonLabel.classList.toggle('loading-dots', isLoading);
+  }
+
+  function animateSummaryOutput() {
+    summaryOutput.classList.remove('summary-output-enter');
+    void summaryOutput.offsetWidth;
+    summaryOutput.classList.add('summary-output-enter');
+  }
+
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function renderFriendlyError(message) {
+    latestSummary = '';
+    speakSummaryButton.disabled = true;
+    summaryOutput.innerHTML = `
+      <div class="flex h-full flex-col items-start justify-center gap-2 text-slate-300">
+        <span class="flex h-8 w-8 items-center justify-center rounded-full border border-green-500 text-sm font-bold text-green-400">!</span>
+        <p class="font-semibold text-white">No readable text found</p>
+        <p class="text-sm leading-6 text-slate-400">${escapeHtml(message)}</p>
+      </div>
+    `;
+    wordCountBadge.textContent = 'Summary: 0 words (from 0 words on page)';
+    animateSummaryOutput();
   }
 
   async function getActiveTab() {
@@ -169,9 +202,16 @@
   function renderSummary(result) {
     latestSummary = result.summary || '';
     latestPageText = result.sourceText || latestPageText;
+
+    if (!latestSummary) {
+      renderFriendlyError('This page may be mostly interactive controls, media, or protected browser content.');
+      return;
+    }
+
     summaryOutput.textContent = latestSummary || 'No summary could be generated.';
-    wordCountBadge.textContent = `${result.originalWordCount || 0} original / ${result.wordCount || 0} summary`;
+    wordCountBadge.textContent = `Summary: ${result.wordCount || 0} words (from ${result.originalWordCount || 0} words on page)`;
     speakSummaryButton.disabled = !latestSummary;
+    animateSummaryOutput();
   }
 
   async function summarisePage() {
@@ -187,10 +227,16 @@
         throw new Error(result && result.message ? result.message : 'Summary failed');
       }
 
+      if (!result.summary && result.note === 'No readable text found') {
+        renderFriendlyError('SummaRead could not find enough article text to summarise on this page.');
+        setStatus('No readable text found');
+        return;
+      }
+
       renderSummary(result);
       setStatus(result.note || 'Summary generated');
     } catch (error) {
-      summaryOutput.textContent = 'Unable to summarise this page. Try refreshing the tab and running SummaRead again.';
+      renderFriendlyError('Unable to summarise this page. Try refreshing the tab and running SummaRead again.');
       setStatus(error.message);
     } finally {
       setLoading(false);
@@ -277,7 +323,7 @@
       setStatus(`Speech rate ${rateValue.textContent}`);
     });
 
-    document.getElementById('summarise-page').addEventListener('click', summarisePage);
+    summariseButton.addEventListener('click', summarisePage);
     speakSummaryButton.addEventListener('click', () => speakText(latestSummary, 'Speaking summary'));
 
     document.getElementById('play-speech').addEventListener('click', async () => {

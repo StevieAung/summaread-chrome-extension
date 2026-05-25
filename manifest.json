@@ -35,8 +35,8 @@
         "modules/constants.js",
         "modules/storage.js",
         "modules/extractive.js",
-        "modules/controls.js",
         "modules/speech.js",
+        "modules/controls.js",
         "content/page-text.js",
         "content/content.js",
         "content/sidebar.js"
@@ -45,6 +45,19 @@
         "content/content.css"
       ],
       "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "assets/logo.svg",
+        "popup/popup.html",
+        "popup/popup.css",
+        "popup/popup.js"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
     }
   ]
 }
