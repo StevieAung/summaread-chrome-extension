@@ -34,6 +34,7 @@
       "js": [
         "modules/constants.js",
         "modules/storage.js",
+        "modules/extractive.js",
         "content/content.js"
       ],
       "css": [
