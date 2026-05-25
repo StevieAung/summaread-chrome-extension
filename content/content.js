@@ -57,6 +57,32 @@
       return true;
     }
 
+    if (message.type === messageTypes.SUMMARIZE_TEXT) {
+      const page = window.SummaRead.pageText.extract();
+
+      if (!page.text) {
+        sendResponse({
+          ok: false,
+          message: 'No readable text found',
+          title: page.title,
+          url: page.url,
+          text: '',
+          wordCount: 0
+        });
+        return true;
+      }
+
+      const result = window.SummaRead.summarizer.summarize(page.text, message.count || 3);
+      sendResponse({
+        ok: true,
+        title: page.title,
+        url: page.url,
+        sourceText: page.text,
+        ...result
+      });
+      return true;
+    }
+
     if (message.type === messageTypes.UPDATE_SETTINGS) {
       applySettings({
         ...currentSettings,

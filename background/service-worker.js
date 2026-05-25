@@ -23,10 +23,24 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   if (message.type === 'SPEAK_TEXT') {
-    chrome.tts.speak(message.text || '', {
+    const options = {
       enqueue: false,
-      rate: 1.0
-    });
+      rate: Number(message.rate) || 1.0
+    };
+
+    if (message.voiceName) {
+      options.voiceName = message.voiceName;
+    }
+
+    chrome.tts.speak(message.text || '', options);
+    sendResponse({ ok: true });
+    return true;
+  }
+
+  if (message.type === 'PAUSE_SPEECH') {
+    if (chrome.tts.pause) {
+      chrome.tts.pause();
+    }
     sendResponse({ ok: true });
     return true;
   }

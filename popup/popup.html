@@ -4,86 +4,186 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>SummaRead</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+      }
+
+      .toggle-input:checked + .toggle-track {
+        background: #22c55e;
+      }
+
+      .toggle-input:checked + .toggle-track .toggle-thumb {
+        transform: translateX(100%);
+      }
+    </style>
   </head>
-  <body class="w-80 bg-gray-50 text-gray-900">
-    <main class="space-y-4 p-4">
-      <header class="space-y-1">
-        <h1 class="text-lg font-semibold">SummaRead</h1>
-        <p class="text-sm text-gray-600">Accessibility reading controls</p>
+  <body class="w-[380px] min-h-[520px] overflow-hidden bg-slate-950 text-white">
+    <main class="flex min-h-[520px] flex-col">
+      <header class="flex items-center gap-3 border-b border-slate-800 px-5 py-4">
+        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-green-500 text-sm font-extrabold text-slate-950">
+          SR
+        </div>
+        <div>
+          <h1 class="text-lg font-bold leading-tight">SummaRead</h1>
+          <p class="text-xs font-medium text-slate-400">AI Web Accessibility</p>
+        </div>
       </header>
 
-      <section class="space-y-3">
-        <label class="block space-y-1">
-          <span class="text-sm font-medium">Font size</span>
-          <input id="fontSizeScale" class="w-full" type="range" min="0.8" max="1.6" step="0.1">
-        </label>
+      <nav class="px-5 pt-4">
+        <div class="grid grid-cols-2 rounded-full bg-slate-900 p-1">
+          <button id="tab-summary" class="tab-button rounded-full px-3 py-2 text-xs font-semibold transition" type="button" data-tab-target="summary-panel">
+            Summarise &amp; Speech
+          </button>
+          <button id="tab-visual" class="tab-button rounded-full px-3 py-2 text-xs font-semibold transition" type="button" data-tab-target="visual-panel">
+            Visual &amp; Reading
+          </button>
+        </div>
+      </nav>
 
-        <label class="block space-y-1">
-          <span class="text-sm font-medium">Line height</span>
-          <input id="lineHeightScale" class="w-full" type="range" min="1.2" max="2.2" step="0.1">
-        </label>
+      <section class="flex-1 overflow-y-auto px-5 py-4">
+        <div id="summary-panel" class="tab-panel space-y-5">
+          <section class="space-y-3">
+            <button id="summarise-page" class="flex w-full items-center justify-center gap-2 rounded-xl bg-green-500 px-4 py-3 text-sm font-bold text-slate-950 transition hover:bg-green-400" type="button">
+              <span id="summary-spinner" class="hidden h-4 w-4 animate-spin rounded-full border-2 border-slate-950 border-t-transparent"></span>
+              <span>Summarise This Page</span>
+            </button>
 
-        <label class="block space-y-1">
-          <span class="text-sm font-medium">Letter spacing</span>
-          <input id="letterSpacing" class="w-full" type="range" min="0" max="4" step="0.5">
-        </label>
+            <div id="summary-output" class="h-40 overflow-y-auto rounded-xl border border-slate-800 bg-slate-900 p-3 text-sm leading-6 text-slate-300">
+              Summary will appear here after analysing the current page.
+            </div>
 
-        <label class="block space-y-1">
-          <span class="text-sm font-medium">Font family</span>
-          <select id="fontFamily" class="w-full rounded border border-gray-300 bg-white px-2 py-2 text-sm">
-            <option value="default">Default</option>
-            <option value="dyslexic">OpenDyslexic</option>
-            <option value="legible">Atkinson Hyperlegible</option>
-            <option value="mono">Monospace</option>
-          </select>
-        </label>
+            <div class="flex items-center justify-between gap-3">
+              <span id="word-count-badge" class="rounded-full border border-slate-700 px-3 py-1 text-xs font-medium text-slate-300">
+                0 original / 0 summary
+              </span>
+              <button id="speak-summary" class="rounded-xl border border-green-500 px-3 py-2 text-xs font-semibold text-green-400 transition hover:bg-green-500 hover:text-slate-950 disabled:cursor-not-allowed disabled:border-slate-700 disabled:text-slate-600 disabled:hover:bg-transparent" type="button" disabled>
+                Speak Summary
+              </button>
+            </div>
+          </section>
+
+          <section class="space-y-4 border-t border-slate-800 pt-4">
+            <div class="grid grid-cols-3 gap-2">
+              <button id="play-speech" class="rounded-xl bg-slate-900 px-3 py-3 text-lg font-semibold text-green-400 ring-1 ring-slate-800 transition hover:ring-green-500" type="button" title="Play">
+                ▶
+              </button>
+              <button id="pause-speech" class="rounded-xl bg-slate-900 px-3 py-3 text-lg font-semibold text-green-400 ring-1 ring-slate-800 transition hover:ring-green-500" type="button" title="Pause">
+                ⏸
+              </button>
+              <button id="stop-speech" class="rounded-xl bg-slate-900 px-3 py-3 text-lg font-semibold text-green-400 ring-1 ring-slate-800 transition hover:ring-green-500" type="button" title="Stop">
+                ⏹
+              </button>
+            </div>
+
+            <label class="block space-y-2">
+              <span class="flex items-center justify-between text-xs font-semibold text-slate-300">
+                <span>Speech rate</span>
+                <span id="rate-value" class="text-green-400">1.0x</span>
+              </span>
+              <input id="speech-rate" class="w-full accent-green-500" type="range" min="0.5" max="2" step="0.1" value="1">
+            </label>
+
+            <label class="block space-y-2">
+              <span class="text-xs font-semibold text-slate-300">Voice</span>
+              <select id="voice-select" class="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-green-500">
+                <option value="">Default voice</option>
+              </select>
+            </label>
+          </section>
+        </div>
+
+        <div id="visual-panel" class="tab-panel hidden space-y-5">
+          <section class="space-y-4">
+            <label class="flex items-center justify-between gap-4">
+              <span class="text-sm font-semibold text-slate-200">Contrast Mode</span>
+              <input id="contrastMode" class="toggle-input sr-only setting-control" type="checkbox" data-setting-key="contrastMode">
+              <span class="toggle-track relative h-8 w-14 rounded-full bg-slate-800 transition">
+                <span class="toggle-thumb absolute left-1 top-1 h-6 w-6 rounded-full bg-white transition"></span>
+              </span>
+            </label>
+
+            <label class="block space-y-2">
+              <span class="flex items-center justify-between text-xs font-semibold text-slate-300">
+                <span>Font Size</span>
+                <span id="fontSizeScale-value" class="text-green-400">1.0x</span>
+              </span>
+              <input id="fontSizeScale" class="setting-control w-full accent-green-500" type="range" min="0.9" max="1.5" step="0.1" data-setting-key="fontSizeScale">
+            </label>
+
+            <label class="block space-y-2">
+              <span class="flex items-center justify-between text-xs font-semibold text-slate-300">
+                <span>Line Height</span>
+                <span id="lineHeightScale-value" class="text-green-400">1.6</span>
+              </span>
+              <input id="lineHeightScale" class="setting-control w-full accent-green-500" type="range" min="1.2" max="2.2" step="0.1" data-setting-key="lineHeightScale">
+            </label>
+
+            <label class="block space-y-2">
+              <span class="flex items-center justify-between text-xs font-semibold text-slate-300">
+                <span>Letter Spacing</span>
+                <span id="letterSpacing-value" class="text-green-400">0px</span>
+              </span>
+              <input id="letterSpacing" class="setting-control w-full accent-green-500" type="range" min="0" max="5" step="0.5" data-setting-key="letterSpacing">
+            </label>
+
+            <label class="block space-y-2">
+              <span class="text-xs font-semibold text-slate-300">Font Family</span>
+              <select id="fontFamily" class="setting-control w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-green-500" data-setting-key="fontFamily">
+                <option value="default">Default</option>
+                <option value="dyslexic">Dyslexic</option>
+                <option value="legible">Legible</option>
+                <option value="mono">Mono</option>
+              </select>
+            </label>
+
+            <button id="reset-page-styles" class="w-full rounded-xl border border-red-500 px-4 py-2 text-sm font-semibold text-red-400 transition hover:bg-red-500 hover:text-white" type="button">
+              Reset Page Styles
+            </button>
+          </section>
+
+          <section class="space-y-4 border-t border-slate-800 pt-4">
+            <label class="flex items-center justify-between gap-4">
+              <span class="text-sm font-semibold text-slate-200">Highlight Links</span>
+              <input id="highlightLinks" class="toggle-input sr-only setting-control" type="checkbox" data-setting-key="highlightLinks">
+              <span class="toggle-track relative h-7 w-12 rounded-full bg-slate-800 transition">
+                <span class="toggle-thumb absolute left-1 top-1 h-5 w-5 rounded-full bg-white transition"></span>
+              </span>
+            </label>
+
+            <label class="flex items-center justify-between gap-4">
+              <span class="text-sm font-semibold text-slate-200">Hide Images</span>
+              <input id="hideImages" class="toggle-input sr-only setting-control" type="checkbox" data-setting-key="hideImages">
+              <span class="toggle-track relative h-7 w-12 rounded-full bg-slate-800 transition">
+                <span class="toggle-thumb absolute left-1 top-1 h-5 w-5 rounded-full bg-white transition"></span>
+              </span>
+            </label>
+
+            <label class="flex items-center justify-between gap-4">
+              <span class="text-sm font-semibold text-slate-200">Stop Animations</span>
+              <input id="stopAnimations" class="toggle-input sr-only setting-control" type="checkbox" data-setting-key="stopAnimations">
+              <span class="toggle-track relative h-7 w-12 rounded-full bg-slate-800 transition">
+                <span class="toggle-thumb absolute left-1 top-1 h-5 w-5 rounded-full bg-white transition"></span>
+              </span>
+            </label>
+
+            <button id="reset-all" class="w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white ring-1 ring-slate-700 transition hover:ring-green-500" type="button">
+              Reset All
+            </button>
+          </section>
+        </div>
       </section>
 
-      <section class="grid gap-2 text-sm">
-        <label class="flex items-center justify-between gap-3">
-          <span>High contrast</span>
-          <input id="contrastMode" class="h-4 w-4" type="checkbox">
-        </label>
-
-        <label class="flex items-center justify-between gap-3">
-          <span>Highlight links</span>
-          <input id="highlightLinks" class="h-4 w-4" type="checkbox">
-        </label>
-
-        <label class="flex items-center justify-between gap-3">
-          <span>Hide images</span>
-          <input id="hideImages" class="h-4 w-4" type="checkbox">
-        </label>
-
-        <label class="flex items-center justify-between gap-3">
-          <span>Stop animations</span>
-          <input id="stopAnimations" class="h-4 w-4" type="checkbox">
-        </label>
-      </section>
-
-      <section class="grid grid-cols-2 gap-2">
-        <button id="speakPage" class="rounded bg-gray-900 px-3 py-2 text-sm font-medium text-white" type="button">
-          Speak
-        </button>
-        <button id="stopSpeech" class="rounded border border-gray-300 bg-white px-3 py-2 text-sm font-medium" type="button">
-          Stop
-        </button>
-        <button id="toggleSidebar" class="rounded border border-gray-300 bg-white px-3 py-2 text-sm font-medium" type="button">
-          Sidebar
-        </button>
-        <button id="resetSettings" class="rounded border border-gray-300 bg-white px-3 py-2 text-sm font-medium" type="button">
-          Reset
-        </button>
-      </section>
-
-      <p id="status" class="text-xs text-gray-600" role="status"></p>
+      <footer class="border-t border-slate-800 px-5 py-3">
+        <p id="status" class="truncate text-xs font-medium text-slate-400" role="status">Ready</p>
+      </footer>
     </main>
 
     <script src="../modules/constants.js"></script>
-    <script src="../modules/storage.js"></script>
-    <script src="../modules/extractive.js"></script>
-    <script src="../modules/speech.js"></script>
     <script src="popup.js"></script>
   </body>
 </html>
