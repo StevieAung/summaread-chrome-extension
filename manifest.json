@@ -36,6 +36,7 @@
         "modules/storage.js",
         "modules/extractive.js",
         "modules/controls.js",
+        "modules/speech.js",
         "content/page-text.js",
         "content/content.js",
         "content/sidebar.js"
