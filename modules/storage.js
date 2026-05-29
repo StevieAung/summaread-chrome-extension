@@ -7,9 +7,13 @@
     contrastMode: false,
     letterSpacing: 0,
     fontFamily: 'default',
+    saturationScale: 1.0,
     highlightLinks: false,
     hideImages: false,
-    stopAnimations: false
+    stopAnimations: false,
+    summarisationMode: 'lsa',
+    geminiApiKey: '',
+    aiModeEnabled: false
   };
 
   async function getSettings() {

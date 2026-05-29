@@ -9,6 +9,9 @@
     "scripting",
     "tts"
   ],
+  "host_permissions": [
+    "https://generativelanguage.googleapis.com/*"
+  ],
   "background": {
     "service_worker": "background/service-worker.js"
   },
@@ -35,6 +38,7 @@
         "modules/constants.js",
         "modules/storage.js",
         "modules/extractive.js",
+        "modules/gemini.js",
         "modules/speech.js",
         "modules/controls.js",
         "content/page-text.js",

@@ -40,30 +40,45 @@
     const fontSizeScale = toNumber(settings.fontSizeScale, 1.0);
     const lineHeightScale = toNumber(settings.lineHeightScale, 1.6);
     const letterSpacing = toNumber(settings.letterSpacing, 0);
+    const saturationScale = toNumber(settings.saturationScale, 1.0);
+    const fontSizePx = (16 * fontSizeScale).toFixed(2);
     const fontFamily = getFontFamily(settings.fontFamily);
+    const filters = [];
+    const readableTargets =
+      'body, body p, body li, body article, body main, body section, body div, body span, body a, body button, body input, body textarea, body select';
     const css = [
-      `html { font-size: calc(1em * ${fontSizeScale}) !important; }`,
-      `body { line-height: ${lineHeightScale} !important; letter-spacing: ${letterSpacing}px !important; }`
+      `html { font-size: ${fontSizePx}px !important; }`,
+      `${readableTargets} { font-size: ${fontSizePx}px !important; }`,
+      `${readableTargets} { line-height: ${lineHeightScale} !important; letter-spacing: ${letterSpacing}px !important; }`
     ];
 
     if (fontFamily) {
-      css.push(`body { font-family: ${fontFamily} !important; }`);
+      css.push(`${readableTargets} { font-family: ${fontFamily} !important; }`);
     }
 
     if (settings.contrastMode) {
-      css.push('html { filter: contrast(1.25) saturate(1.1) !important; }');
+      filters.push('contrast(1.25)');
+      filters.push('saturate(1.1)');
+    }
+
+    if (saturationScale !== 1) {
+      filters.push(`saturate(${saturationScale})`);
+    }
+
+    if (filters.length) {
+      css.push(`html { filter: ${filters.join(' ')} !important; }`);
     }
 
     if (settings.highlightLinks) {
-      css.push('a { background: yellow !important; color: black !important; }');
+      css.push('body a { background: yellow !important; color: black !important; outline: 2px solid #facc15 !important; outline-offset: 2px !important; }');
     }
 
     if (settings.hideImages) {
-      css.push('img { display: none !important; }');
+      css.push('body img, body picture, body video, body svg { display: none !important; }');
     }
 
     if (settings.stopAnimations) {
-      css.push('*, *::before, *::after { animation: none !important; transition: none !important; }');
+      css.push('body *, body *::before, body *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }');
     }
 
     return css.join('\n');

@@ -104,7 +104,22 @@
 
   async function summarizePage(message) {
     const page = window.SummaRead.pageText.extract();
-    const result = window.SummaRead.summarizer.summarize(page.text, message.count || 3);
+    const settings = await window.SummaRead.storage.getSettings();
+    let result;
+
+    if (settings.summarisationMode === 'ai' && settings.geminiApiKey) {
+      try {
+        result = await window.SummaRead.gemini.summarize(page.text, settings.geminiApiKey);
+      } catch (error) {
+        console.warn('SummaRead: AI mode failed, falling back to LSA:', error.message);
+        result = window.SummaRead.summarizer.summarize(page.text, message.count || 3);
+        result.mode = 'lsa';
+        result.note = `AI unavailable - used LSA fallback. ${error.message}`;
+      }
+    } else {
+      result = window.SummaRead.summarizer.summarize(page.text, message.count || 3);
+      result.mode = result.mode || 'lsa';
+    }
 
     return {
       ok: true,

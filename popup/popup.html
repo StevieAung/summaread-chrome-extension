@@ -4,169 +4,306 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>SummaRead</title>
+    <style>
+      html,
+      body {
+        width: 430px;
+        min-width: 430px;
+        min-height: 500px;
+        overflow-x: hidden;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {}
+        }
+      };
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="popup.css">
   </head>
-  <body class="w-[380px] min-h-[520px] overflow-hidden bg-slate-950 text-white">
-    <main class="flex min-h-[520px] flex-col">
-      <header class="flex items-center gap-3 border-b border-slate-800 px-5 py-4">
-        <img class="h-11 w-11 shrink-0" src="../assets/logo.svg" alt="SummaRead logo">
+  <body class="bg-slate-950 text-white">
+    <div id="app" class="w-[430px] min-h-[500px] bg-slate-950 text-white">
+      <header class="relative flex items-center gap-3 border-b border-slate-800 p-4">
+        <div class="relative flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-green-500 text-sm font-bold text-white">
+          SR
+          <svg class="absolute -right-0.5 -top-0.5 h-3.5 w-3.5 text-white" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 2l2.1 6.1L20 10.2l-5.9 2.1L12 18.5l-2.1-6.2L4 10.2l5.9-2.1L12 2z"/>
+          </svg>
+        </div>
         <div>
-          <h1 class="text-lg font-bold leading-tight">SummaRead</h1>
-          <p class="text-xs font-medium text-slate-400">AI Web Accessibility</p>
+          <div class="text-lg font-bold leading-tight text-white">SummaRead</div>
+          <div class="text-xs text-slate-400">AI Web Accessibility</div>
+        </div>
+        <div class="ml-auto">
+          <button id="settings-button" class="icon-button" type="button" aria-label="Open reset options">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 0 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1A2 2 0 1 1 4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.6-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7A2 2 0 1 1 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3h.1a1.7 1.7 0 0 0 1-1.6V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1A2 2 0 1 1 19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9v.1a1.7 1.7 0 0 0 1.6 1h.1a2 2 0 1 1 0 4H21a1.7 1.7 0 0 0-1.6 1z"/>
+            </svg>
+          </button>
+        </div>
+
+        <div id="settings-menu" class="absolute right-4 top-14 z-20 hidden w-48 rounded-xl border border-slate-700 bg-slate-900 p-2 shadow-2xl">
+          <button id="settings-reset-all" class="menu-button danger" type="button">Reset all settings</button>
         </div>
       </header>
 
-      <nav class="px-5 pt-4">
-        <div class="grid grid-cols-2 rounded-full bg-slate-900 p-1">
-          <button id="tab-summary" class="tab-button rounded-full px-3 py-2 text-xs font-semibold transition" type="button" data-tab-target="summary-panel">
-            Summarise &amp; Speech
-          </button>
-          <button id="tab-visual" class="tab-button rounded-full px-3 py-2 text-xs font-semibold transition" type="button" data-tab-target="visual-panel">
-            Visual &amp; Reading
-          </button>
-        </div>
-      </nav>
+      <div class="grid grid-cols-2 gap-2 p-4 pb-0">
+        <button id="tab-summary" class="tab-button py-2 text-sm font-medium" type="button" data-tab-target="summary-panel">Summarise &amp; Speech</button>
+        <button id="tab-visual" class="tab-button py-2 text-sm font-medium" type="button" data-tab-target="visual-panel">Visual &amp; Reading</button>
+      </div>
 
-      <section class="flex-1 overflow-y-auto px-5 py-4">
-        <div id="summary-panel" class="tab-panel space-y-5">
-          <section class="space-y-3">
-            <button id="summarise-page" class="flex w-full items-center justify-center gap-2 rounded-xl bg-green-500 px-4 py-3 text-sm font-bold text-slate-950 transition hover:bg-green-400" type="button">
-              <span id="summary-spinner" class="hidden h-4 w-4 animate-spin rounded-full border-2 border-slate-950 border-t-transparent"></span>
+      <main class="max-h-[488px] overflow-y-auto pb-16">
+        <div id="summary-panel" class="tab-panel">
+          <section class="space-y-4 p-4">
+            <div>
+              <h2 class="text-sm font-bold text-white">Summarise</h2>
+              <p class="mt-1 text-xs text-slate-400">Create a short extractive summary of the current page.</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <button id="mode-lsa" class="mode-button active-lsa" type="button" data-mode="lsa">
+                <span class="text-sm font-bold">LSA Mode 🧠</span>
+                <span class="text-xs text-slate-400">Offline · Private</span>
+              </button>
+              <button id="mode-ai" class="mode-button" type="button" data-mode="ai">
+                <span class="text-sm font-bold">AI Mode ✨</span>
+                <span class="text-xs text-slate-400">Gemini Flash</span>
+              </button>
+            </div>
+
+            <div id="ai-warning" class="hidden rounded-xl border border-yellow-500/40 bg-yellow-950/60 p-3 text-xs text-yellow-100">
+              <div class="flex items-center justify-between gap-3">
+                <span>⚠ Add your Gemini API key to use AI Mode</span>
+                <button id="open-api-setup" class="shrink-0 font-bold text-yellow-300 hover:text-yellow-100" type="button">Set up →</button>
+              </div>
+            </div>
+
+            <div id="api-key-panel" class="drawer">
+              <div class="drawer-inner space-y-3">
+                <label class="block space-y-2">
+                  <span class="text-xs font-semibold text-slate-300">Gemini API Key</span>
+                  <input id="gemini-api-key" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white placeholder:text-slate-500" type="password" placeholder="AIza...">
+                </label>
+                <div class="flex items-center justify-between gap-3">
+                  <button id="get-gemini-key" class="text-xs font-semibold text-green-400 hover:text-green-300" type="button">Get free key →</button>
+                  <span id="api-key-message" class="text-xs text-slate-400"></span>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                  <button id="validate-api-key" class="small-green-button justify-center" type="button">
+                    <span id="api-key-spinner" class="hidden h-4 w-4 animate-spin rounded-full border-2 border-green-300 border-t-transparent"></span>
+                    <span id="api-key-button-label">Validate &amp; Save</span>
+                  </button>
+                  <button id="remove-api-key" class="hidden rounded-lg border border-red-800 bg-red-950 px-3 py-2 text-xs font-bold text-red-300 hover:brightness-110" type="button">Remove Key</button>
+                </div>
+              </div>
+            </div>
+
+            <button id="summarise-page" class="primary-action-card" type="button">
+              <span id="summary-spinner" class="hidden h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+              <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 3h7l5 5v13H7V3z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 3v5h5M10 13h6M10 17h6M10 9h1"/>
+              </svg>
               <span id="summary-button-label">Summarise This Page</span>
             </button>
 
-            <div id="summary-output" class="h-40 overflow-y-auto rounded-xl border border-slate-800 bg-slate-900 p-3 text-sm leading-6 text-slate-300">
-              Summary will appear here after analysing the current page.
-            </div>
-
-            <div class="flex items-center justify-between gap-3">
-              <span id="word-count-badge" class="rounded-full border border-slate-700 px-3 py-1 text-xs font-medium text-slate-300">
-                Summary: 0 words (from 0 words on page)
-              </span>
-              <button id="speak-summary" class="rounded-xl border border-green-500 px-3 py-2 text-xs font-semibold text-green-400 transition hover:bg-green-500 hover:text-slate-950 disabled:cursor-not-allowed disabled:border-slate-700 disabled:text-slate-600 disabled:hover:bg-transparent" type="button" disabled>
-                Speak Summary
-              </button>
-            </div>
+            <article id="summary-output-panel" class="hidden rounded-xl border border-slate-800 bg-slate-900">
+              <div id="summary-output" class="max-h-40 overflow-y-auto p-4 text-sm leading-6 text-slate-200"></div>
+              <footer class="flex items-center justify-between gap-3 border-t border-slate-800 px-4 py-3">
+                <div class="flex min-w-0 items-center gap-2">
+                  <span id="word-count-badge" class="rounded-full border border-slate-700 px-3 py-1 text-[11px] font-medium text-slate-300">0 words (from 0)</span>
+                  <span id="summary-mode-badge" class="rounded-full bg-slate-700 px-2.5 py-1 text-[11px] font-bold text-slate-200">🧠 LSA</span>
+                </div>
+                <button id="speak-summary" class="small-green-button" type="button" disabled>
+                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 9v6h4l5 4V5L9 9H5z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9.5a4 4 0 0 1 0 5"/>
+                  </svg>
+                  Speak
+                </button>
+              </footer>
+            </article>
           </section>
 
-          <section class="space-y-4 border-t border-slate-800 pt-4">
-            <div class="grid grid-cols-3 gap-2">
-              <button id="play-speech" class="rounded-xl bg-slate-900 px-3 py-3 text-lg font-semibold text-green-400 ring-1 ring-slate-800 transition hover:ring-green-500" type="button" title="Play">
-                ▶
+          <hr class="mx-4 border-slate-800">
+
+          <section class="space-y-4 py-4">
+            <div class="px-4">
+              <h2 class="text-sm font-bold text-white">Speech</h2>
+              <p class="mt-1 text-xs text-slate-400">Listen to the page or generated summary.</p>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3 px-4">
+              <button class="feature-card action-card aspect-square rounded-xl flex flex-col items-center justify-center gap-2 bg-slate-900 border border-slate-700 cursor-pointer hover:brightness-110 transition-all" id="play-speech" type="button" data-action="play">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7L8 5z"/></svg>
+                <span>Play</span>
               </button>
-              <button id="pause-speech" class="rounded-xl bg-slate-900 px-3 py-3 text-lg font-semibold text-green-400 ring-1 ring-slate-800 transition hover:ring-green-500" type="button" title="Pause">
-                ⏸
+              <button class="feature-card action-card aspect-square rounded-xl flex flex-col items-center justify-center gap-2 bg-slate-900 border border-slate-700 cursor-pointer hover:brightness-110 transition-all" id="pause-speech" type="button" data-action="pause">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5h4v14H7V5zm6 0h4v14h-4V5z"/></svg>
+                <span>Pause</span>
               </button>
-              <button id="stop-speech" class="rounded-xl bg-slate-900 px-3 py-3 text-lg font-semibold text-green-400 ring-1 ring-slate-800 transition hover:ring-green-500" type="button" title="Stop">
-                ⏹
+              <button class="feature-card action-card aspect-square rounded-xl flex flex-col items-center justify-center gap-2 bg-slate-900 border border-slate-700 cursor-pointer hover:brightness-110 transition-all" id="stop-speech" type="button" data-action="stop">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 7h10v10H7V7z"/></svg>
+                <span>Stop</span>
               </button>
             </div>
 
-            <label class="block space-y-2">
-              <span class="flex items-center justify-between text-xs font-semibold text-slate-300">
-                <span>Speech rate</span>
-                <span id="rate-value" class="text-green-400">1.0x</span>
-              </span>
-              <input id="speech-rate" class="w-full accent-green-500" type="range" min="0.5" max="2" step="0.1" value="1">
-            </label>
-
-            <label class="block space-y-2">
-              <span class="text-xs font-semibold text-slate-300">Voice</span>
-              <select id="voice-select" class="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-green-500">
-                <option value="">Default voice</option>
-              </select>
-            </label>
+            <div class="px-4">
+              <button id="speech-settings-toggle" class="drawer-toggle" type="button" aria-expanded="true">
+                <span>Speech Settings</span>
+                <span aria-hidden="true">▾</span>
+              </button>
+              <div id="speech-settings-drawer" class="drawer open">
+                <div class="drawer-inner space-y-4">
+                  <label class="block space-y-2">
+                    <span class="flex items-center justify-between text-xs font-semibold text-slate-300">
+                      <span>Speech Rate</span>
+                      <span id="rate-value" class="text-green-400">1.0x</span>
+                    </span>
+                    <input id="speech-rate" class="w-full" type="range" min="0.5" max="2" step="0.1" value="1">
+                  </label>
+                  <label class="block space-y-2">
+                    <span class="text-xs font-semibold text-slate-300">Voice</span>
+                    <select id="voice-select" class="form-select">
+                      <option value="">Default voice</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
+            </div>
           </section>
         </div>
 
-        <div id="visual-panel" class="tab-panel hidden space-y-5">
-          <section class="space-y-4">
-            <label class="flex items-center justify-between gap-4">
-              <span class="text-sm font-semibold text-slate-200">Contrast Mode</span>
-              <input id="contrastMode" class="toggle-input sr-only setting-control" type="checkbox" data-setting-key="contrastMode">
-              <span class="toggle-track relative h-8 w-14 rounded-full bg-slate-800 transition">
-                <span class="toggle-thumb absolute left-1 top-1 h-6 w-6 rounded-full bg-white transition"></span>
-              </span>
-            </label>
+        <div id="visual-panel" class="tab-panel hidden">
+          <section>
+            <div class="px-4 pt-4">
+              <h2 class="text-sm font-bold text-white">Visual</h2>
+              <p class="mt-1 text-xs text-slate-400">Adjust page appearance and readability.</p>
+            </div>
 
-            <label class="block space-y-2">
-              <span class="flex items-center justify-between text-xs font-semibold text-slate-300">
-                <span>Font Size</span>
-                <span id="fontSizeScale-value" class="text-green-400">1.0x</span>
-              </span>
-              <input id="fontSizeScale" class="setting-control w-full accent-green-500" type="range" min="0.9" max="1.5" step="0.1" data-setting-key="fontSizeScale">
-            </label>
-
-            <label class="block space-y-2">
-              <span class="flex items-center justify-between text-xs font-semibold text-slate-300">
+            <div class="grid grid-cols-3 gap-3 p-4">
+              <button class="feature-card setting-card aspect-square rounded-xl flex flex-col items-center justify-center gap-2 bg-slate-900 border border-slate-700 cursor-pointer hover:brightness-110 transition-all" type="button" data-setting-key="contrastMode" data-kind="toggle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-width="2" d="M12 3a9 9 0 1 0 0 18V3z"/><circle cx="12" cy="12" r="9" stroke-width="2"/></svg>
+                <span>Contrast</span>
+              </button>
+              <button class="feature-card setting-card aspect-square rounded-xl flex flex-col items-center justify-center gap-2 bg-slate-900 border border-slate-700 cursor-pointer hover:brightness-110 transition-all" type="button" data-drawer-target="drawer-text-size" data-setting-key="fontSizeScale">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><text x="3" y="16" fill="currentColor" font-size="13" font-weight="800">Aa</text><path d="M16 7h5M18.5 4.5v5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                <span>Text Size</span>
+              </button>
+              <button class="feature-card setting-card aspect-square rounded-xl flex flex-col items-center justify-center gap-2 bg-slate-900 border border-slate-700 cursor-pointer hover:brightness-110 transition-all" type="button" data-drawer-target="drawer-line-height" data-setting-key="lineHeightScale">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-width="2" d="M5 6h14M5 12h14M5 18h14M3 6v12M21 6v12"/></svg>
                 <span>Line Height</span>
-                <span id="lineHeightScale-value" class="text-green-400">1.6</span>
-              </span>
-              <input id="lineHeightScale" class="setting-control w-full accent-green-500" type="range" min="1.2" max="2.2" step="0.1" data-setting-key="lineHeightScale">
-            </label>
+              </button>
+              <button class="feature-card setting-card aspect-square rounded-xl flex flex-col items-center justify-center gap-2 bg-slate-900 border border-slate-700 cursor-pointer hover:brightness-110 transition-all" type="button" data-drawer-target="drawer-letter-spacing" data-setting-key="letterSpacing">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12l3-3M5 12l3 3M19 12l-3-3M19 12l-3 3M8 18h8"/></svg>
+                <span>Letter Space</span>
+              </button>
+              <button class="feature-card setting-card aspect-square rounded-xl flex flex-col items-center justify-center gap-2 bg-slate-900 border border-slate-700 cursor-pointer hover:brightness-110 transition-all" type="button" data-drawer-target="drawer-font-family" data-setting-key="fontFamily">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><text x="6" y="17" fill="currentColor" font-size="15" font-weight="900">B</text></svg>
+                <span>Font Family</span>
+              </button>
+              <button class="feature-card setting-card aspect-square rounded-xl flex flex-col items-center justify-center gap-2 bg-slate-900 border border-slate-700 cursor-pointer hover:brightness-110 transition-all" type="button" data-drawer-target="drawer-saturation" data-setting-key="saturationScale">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linejoin="round" stroke-width="2" d="M12 3s6 6.2 6 11a6 6 0 0 1-12 0c0-4.8 6-11 6-11z"/><path stroke-linecap="round" stroke-width="2" d="M9 15a3 3 0 0 0 4 2.8"/></svg>
+                <span>Saturation</span>
+              </button>
+            </div>
 
-            <label class="block space-y-2">
-              <span class="flex items-center justify-between text-xs font-semibold text-slate-300">
-                <span>Letter Spacing</span>
-                <span id="letterSpacing-value" class="text-green-400">0px</span>
-              </span>
-              <input id="letterSpacing" class="setting-control w-full accent-green-500" type="range" min="0" max="5" step="0.5" data-setting-key="letterSpacing">
-            </label>
-
-            <label class="block space-y-2">
-              <span class="text-xs font-semibold text-slate-300">Font Family</span>
-              <select id="fontFamily" class="setting-control w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-green-500" data-setting-key="fontFamily">
-                <option value="default">Default</option>
-                <option value="dyslexic">Dyslexic</option>
-                <option value="legible">Legible</option>
-                <option value="mono">Mono</option>
-              </select>
-            </label>
-
-            <button id="reset-page-styles" class="w-full rounded-xl border border-red-500 px-4 py-2 text-sm font-semibold text-red-400 transition hover:bg-red-500 hover:text-white" type="button">
-              Reset Page Styles
-            </button>
+            <div class="px-4 pb-4">
+              <div id="drawer-text-size" class="drawer visual-drawer">
+                <div class="drawer-inner">
+                  <label class="block space-y-2">
+                    <span class="flex items-center justify-between text-xs font-semibold text-slate-300"><span>Text Size</span><span id="fontSizeScale-value" class="text-green-400">1.0x</span></span>
+                    <input id="fontSizeScale" class="setting-input w-full" type="range" min="0.9" max="1.5" step="0.1" data-setting-key="fontSizeScale">
+                  </label>
+                </div>
+              </div>
+              <div id="drawer-line-height" class="drawer visual-drawer">
+                <div class="drawer-inner">
+                  <label class="block space-y-2">
+                    <span class="flex items-center justify-between text-xs font-semibold text-slate-300"><span>Line Height</span><span id="lineHeightScale-value" class="text-green-400">1.6</span></span>
+                    <input id="lineHeightScale" class="setting-input w-full" type="range" min="1.2" max="2.2" step="0.1" data-setting-key="lineHeightScale">
+                  </label>
+                </div>
+              </div>
+              <div id="drawer-letter-spacing" class="drawer visual-drawer">
+                <div class="drawer-inner">
+                  <label class="block space-y-2">
+                    <span class="flex items-center justify-between text-xs font-semibold text-slate-300"><span>Letter Spacing</span><span id="letterSpacing-value" class="text-green-400">0px</span></span>
+                    <input id="letterSpacing" class="setting-input w-full" type="range" min="0" max="5" step="0.5" data-setting-key="letterSpacing">
+                  </label>
+                </div>
+              </div>
+              <div id="drawer-font-family" class="drawer visual-drawer">
+                <div class="drawer-inner">
+                  <div class="grid grid-cols-4 gap-2">
+                    <button class="font-option" type="button" data-font-value="default">Default</button>
+                    <button class="font-option" type="button" data-font-value="dyslexic">Dyslexic</button>
+                    <button class="font-option" type="button" data-font-value="legible">Legible</button>
+                    <button class="font-option" type="button" data-font-value="mono">Mono</button>
+                  </div>
+                </div>
+              </div>
+              <div id="drawer-saturation" class="drawer visual-drawer">
+                <div class="drawer-inner">
+                  <label class="block space-y-2">
+                    <span class="flex items-center justify-between text-xs font-semibold text-slate-300"><span>Saturation</span><span id="saturationScale-value" class="text-green-400">1.0x</span></span>
+                    <input id="saturationScale" class="setting-input w-full" type="range" min="0.5" max="1.8" step="0.1" data-setting-key="saturationScale">
+                  </label>
+                </div>
+              </div>
+            </div>
           </section>
 
-          <section class="space-y-4 border-t border-slate-800 pt-4">
-            <label class="flex items-center justify-between gap-4">
-              <span class="text-sm font-semibold text-slate-200">Highlight Links</span>
-              <input id="highlightLinks" class="toggle-input sr-only setting-control" type="checkbox" data-setting-key="highlightLinks">
-              <span class="toggle-track relative h-7 w-12 rounded-full bg-slate-800 transition">
-                <span class="toggle-thumb absolute left-1 top-1 h-5 w-5 rounded-full bg-white transition"></span>
-              </span>
-            </label>
+          <hr class="mx-4 border-slate-800">
 
-            <label class="flex items-center justify-between gap-4">
-              <span class="text-sm font-semibold text-slate-200">Hide Images</span>
-              <input id="hideImages" class="toggle-input sr-only setting-control" type="checkbox" data-setting-key="hideImages">
-              <span class="toggle-track relative h-7 w-12 rounded-full bg-slate-800 transition">
-                <span class="toggle-thumb absolute left-1 top-1 h-5 w-5 rounded-full bg-white transition"></span>
-              </span>
-            </label>
+          <section>
+            <div class="px-4 pt-4">
+              <h2 class="text-sm font-bold text-white">Reading</h2>
+              <p class="mt-1 text-xs text-slate-400">Reduce clutter and make page elements easier to follow.</p>
+            </div>
 
-            <label class="flex items-center justify-between gap-4">
-              <span class="text-sm font-semibold text-slate-200">Stop Animations</span>
-              <input id="stopAnimations" class="toggle-input sr-only setting-control" type="checkbox" data-setting-key="stopAnimations">
-              <span class="toggle-track relative h-7 w-12 rounded-full bg-slate-800 transition">
-                <span class="toggle-thumb absolute left-1 top-1 h-5 w-5 rounded-full bg-white transition"></span>
-              </span>
-            </label>
+            <div class="grid grid-cols-3 gap-3 p-4">
+              <button class="feature-card setting-card aspect-square rounded-xl flex flex-col items-center justify-center gap-2 bg-slate-900 border border-slate-700 cursor-pointer hover:brightness-110 transition-all" type="button" data-setting-key="highlightLinks" data-kind="toggle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 13a5 5 0 0 0 7.1 0l2-2a5 5 0 0 0-7.1-7.1l-1.1 1.1M14 11a5 5 0 0 0-7.1 0l-2 2A5 5 0 0 0 12 20.1l1.1-1.1"/></svg>
+                <span>Highlight Links</span>
+              </button>
+              <button class="feature-card setting-card aspect-square rounded-xl flex flex-col items-center justify-center gap-2 bg-slate-900 border border-slate-700 cursor-pointer hover:brightness-110 transition-all" type="button" data-setting-key="hideImages" data-kind="toggle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5h16v14H4V5zM7 16l4-4 3 3 2-2 3 3M3 3l18 18"/></svg>
+                <span>Hide Images</span>
+              </button>
+              <button class="feature-card setting-card aspect-square rounded-xl flex flex-col items-center justify-center gap-2 bg-slate-900 border border-slate-700 cursor-pointer hover:brightness-110 transition-all" type="button" data-setting-key="stopAnimations" data-kind="toggle">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5h4v14H7V5zm6 0h4v14h-4V5z"/></svg>
+                <span>Stop Animations</span>
+              </button>
+            </div>
 
-            <button id="reset-all" class="w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white ring-1 ring-slate-700 transition hover:ring-green-500" type="button">
-              Reset All
-            </button>
+            <div class="grid grid-cols-2 gap-3 px-4 pb-4">
+              <button id="reset-page-styles" class="reset-button" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12a8 8 0 1 1-2.3-5.7M20 4v6h-6"/></svg>
+                Reset Page Styles
+              </button>
+              <button id="reset-all" class="reset-button danger" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 6l12 12M18 6 6 18"/></svg>
+                Reset All
+              </button>
+            </div>
           </section>
         </div>
-      </section>
+      </main>
 
-      <footer class="border-t border-slate-800 px-5 py-3">
+      <footer class="fixed bottom-0 left-0 right-0 flex w-[430px] items-center gap-2 border-t border-slate-800 bg-slate-950 p-4">
+        <span id="status-dot" class="h-2 w-2 rounded-full bg-green-500"></span>
         <p id="status" class="truncate text-xs font-medium text-slate-400" role="status">Ready</p>
       </footer>
-    </main>
+    </div>
 
     <script src="../modules/constants.js"></script>
+    <script src="../modules/gemini.js"></script>
     <script src="popup.js"></script>
   </body>
 </html>

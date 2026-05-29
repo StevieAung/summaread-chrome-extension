@@ -12,4 +12,8 @@
     RESET_SETTINGS: 'RESET_SETTINGS',
     TOGGLE_SIDEBAR: 'TOGGLE_SIDEBAR'
   };
+
+  window.SummaRead.GEMINI_API_ENDPOINT =
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+  window.SummaRead.GEMINI_KEY_STORAGE = 'geminiApiKey';
 })();
