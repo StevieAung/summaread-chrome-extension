@@ -140,10 +140,14 @@
     };
     delete settingsForPage.geminiApiKey;
 
-    await sendToActiveTab({
-      type: messageTypes.UPDATE_SETTINGS,
-      settings: settingsForPage
-    });
+    try {
+      await sendToActiveTab({
+        type: messageTypes.UPDATE_SETTINGS,
+        settings: settingsForPage
+      });
+    } catch (error) {
+      console.warn('SummaRead could not apply settings to the active tab:', error.message);
+    }
   }
 
   function formatSettingValue(key, value) {
@@ -286,7 +290,7 @@
   function renderSummaryError(message) {
     latestSummary = '';
     speakSummaryButton.disabled = true;
-    summaryModeBadge.textContent = settings.summarisationMode === 'ai' ? '✨ Gemini Flash' : '🧠 LSA';
+    summaryModeBadge.textContent = settings.summarisationMode === 'ai' ? '✨ Gemini 2.0 Flash' : '🧠 LSA';
     summaryModeBadge.className =
       settings.summarisationMode === 'ai'
         ? 'rounded-full bg-green-800 px-2.5 py-1 text-[11px] font-bold text-green-100'
@@ -316,7 +320,7 @@
     summaryOutput.textContent = latestSummary;
     wordCountBadge.textContent = `${result.wordCount || 0} words (from ${result.originalWordCount || 0})`;
     if (result.mode === 'ai') {
-      summaryModeBadge.textContent = '✨ Gemini Flash';
+      summaryModeBadge.textContent = '✨ Gemini 2.0 Flash';
       summaryModeBadge.className = 'rounded-full bg-green-800 px-2.5 py-1 text-[11px] font-bold text-green-100';
     } else {
       summaryModeBadge.textContent = '🧠 LSA';
@@ -443,12 +447,31 @@
     setStatus('Validating Gemini API key...', 'working');
 
     try {
-      const result = await window.SummaRead.gemini.validateKey(apiKey);
+      const result = await chrome.runtime.sendMessage({
+        type: messageTypes.VALIDATE_GEMINI_KEY,
+        apiKey
+      });
 
-      if (!result.valid) {
-        apiKeyMessage.textContent = '✗ Invalid key';
+      if (result && result.quotaLimited) {
+        await persistSettings({
+          ...settings,
+          geminiApiKey: apiKey,
+          aiModeEnabled: true,
+          summarisationMode: 'ai'
+        });
+        apiKeyInput.value = '';
+        apiKeyPanel.classList.remove('open');
+        apiKeyMessage.textContent = '✓ Key saved. Gemini quota is limited right now.';
+        apiKeyMessage.className = 'text-xs text-yellow-300';
+        renderSettings();
+        setStatus('Key saved, but Gemini quota is currently limited', 'error');
+        return;
+      }
+
+      if (!result || !result.valid) {
+        apiKeyMessage.textContent = result && result.error ? `✗ ${result.error}` : '✗ Could not validate key';
         apiKeyMessage.className = 'text-xs text-red-300';
-        setStatus(result.error || 'Invalid Gemini API key', 'error');
+        setStatus(result && result.error ? result.error : 'Invalid Gemini API key', 'error');
         return;
       }
 
@@ -465,7 +488,7 @@
       renderSettings();
       setStatus('✓ API key saved');
     } catch (error) {
-      apiKeyMessage.textContent = '✗ Invalid key';
+      apiKeyMessage.textContent = `✗ ${error.message || 'Could not validate key'}`;
       apiKeyMessage.className = 'text-xs text-red-300';
       setStatus(error.message, 'error');
     } finally {

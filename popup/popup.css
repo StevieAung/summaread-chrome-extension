@@ -64,6 +64,10 @@ body {
   flex-direction: column;
 }
 
+.flex-1 {
+  flex: 1 1 0%;
+}
+
 .flex-shrink-0,
 .shrink-0 {
   flex-shrink: 0;
@@ -892,6 +896,19 @@ svg {
 .bottom-nav-button.active {
   background: var(--summaread-green);
   color: #0b1326;
+}
+
+.status-text {
+  line-height: 1.35;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.version-label {
+  flex-shrink: 0;
+  line-height: 1.35;
+  padding-top: 1px;
 }
 
 .reset-button.danger {

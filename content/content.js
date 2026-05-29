@@ -109,7 +109,19 @@
 
     if (settings.summarisationMode === 'ai' && settings.geminiApiKey) {
       try {
-        result = await window.SummaRead.gemini.summarize(page.text, settings.geminiApiKey);
+        const aiResponse = await chrome.runtime.sendMessage({
+          type: messageTypes.GEMINI_SUMMARIZE,
+          text: page.text,
+          options: {
+            maxSentences: message.count || 3
+          }
+        });
+
+        if (!aiResponse || !aiResponse.ok) {
+          throw new Error(aiResponse && aiResponse.message ? aiResponse.message : 'Gemini summarisation failed');
+        }
+
+        result = aiResponse;
       } catch (error) {
         console.warn('SummaRead: AI mode failed, falling back to LSA:', error.message);
         result = window.SummaRead.summarizer.summarize(page.text, message.count || 3);
@@ -125,6 +137,8 @@
       ok: true,
       summary: result.summary,
       note: result.note,
+      mode: result.mode,
+      model: result.model,
       wordCount: result.wordCount,
       originalWordCount: result.originalWordCount,
       selectedIndices: result.selectedIndices,
