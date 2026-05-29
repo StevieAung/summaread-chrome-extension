@@ -54,6 +54,7 @@
   let latestSummary = '';
   let latestPageText = '';
   let openVisualDrawerId = null;
+  const speechRates = [0.75, 1, 1.5, 2];
   const debounceTimers = {};
 
   function setStatus(message, state = 'ready') {
@@ -178,7 +179,8 @@
   function updateCardStates() {
     settingCards.forEach((card) => {
       const key = card.dataset.settingKey;
-      card.classList.toggle('active', isSettingActive(key));
+      const drawer = card.dataset.drawerTarget ? document.getElementById(card.dataset.drawerTarget) : null;
+      card.classList.toggle('active', isSettingActive(key) || Boolean(drawer && drawer.classList.contains('open')));
     });
 
     fontOptions.forEach((option) => {
@@ -239,12 +241,14 @@
     if (openVisualDrawerId === drawerId && drawer.classList.contains('open')) {
       drawer.classList.remove('open');
       openVisualDrawerId = null;
+      updateCardStates();
       return;
     }
 
     closeVisualDrawers(drawerId);
     drawer.classList.add('open');
     openVisualDrawerId = drawerId;
+    updateCardStates();
   }
 
   function switchTab(targetPanelId) {
@@ -253,6 +257,10 @@
     });
 
     document.querySelectorAll('.tab-button').forEach((button) => {
+      button.classList.toggle('active', button.dataset.tabTarget === targetPanelId);
+    });
+
+    document.querySelectorAll('.bottom-nav-button').forEach((button) => {
       button.classList.toggle('active', button.dataset.tabTarget === targetPanelId);
     });
 
@@ -542,9 +550,11 @@
   }
 
   function bindTabs() {
-    document.querySelectorAll('.tab-button').forEach((button) => {
+    document.querySelectorAll('.tab-button, .bottom-nav-button').forEach((button) => {
       button.addEventListener('click', () => {
-        switchTab(button.dataset.tabTarget);
+        if (button.dataset.tabTarget) {
+          switchTab(button.dataset.tabTarget);
+        }
       });
     });
   }
@@ -593,9 +603,13 @@
       document.getElementById('speech-settings-toggle').setAttribute('aria-expanded', String(drawer.classList.contains('open')));
     });
 
-    speechRate.addEventListener('input', () => {
-      speechRateValue.textContent = `${Number(speechRate.value).toFixed(1)}x`;
-      setStatus(`Speech rate ${speechRateValue.textContent}`);
+    speechRate.addEventListener('click', () => {
+      const currentRate = Number(speechRate.value) || 1;
+      const currentIndex = speechRates.indexOf(currentRate);
+      const nextRate = speechRates[(currentIndex + 1) % speechRates.length];
+      speechRate.value = String(nextRate);
+      speechRateValue.textContent = `${nextRate}x`;
+      setStatus(`Speech speed ${speechRateValue.textContent}`);
     });
 
     summaryButton.addEventListener('click', summarisePage);
@@ -684,6 +698,7 @@
 
   async function initialize() {
     settings = await getSettings();
+    openVisualDrawerId = document.querySelector('.visual-drawer.open')?.id || null;
     renderSettings();
     switchTab('summary-panel');
     await loadVoices();

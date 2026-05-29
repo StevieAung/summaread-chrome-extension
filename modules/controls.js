@@ -37,6 +37,12 @@
   }
 
   function buildCss(settings) {
+    const defaults = window.SummaRead.DEFAULT_SETTINGS || {
+      fontSizeScale: 1.0,
+      lineHeightScale: 1.6,
+      letterSpacing: 0,
+      saturationScale: 1.0
+    };
     const fontSizeScale = toNumber(settings.fontSizeScale, 1.0);
     const lineHeightScale = toNumber(settings.lineHeightScale, 1.6);
     const letterSpacing = toNumber(settings.letterSpacing, 0);
@@ -46,11 +52,21 @@
     const filters = [];
     const readableTargets =
       'body, body p, body li, body article, body main, body section, body div, body span, body a, body button, body input, body textarea, body select';
-    const css = [
-      `html { font-size: ${fontSizePx}px !important; }`,
-      `${readableTargets} { font-size: ${fontSizePx}px !important; }`,
-      `${readableTargets} { line-height: ${lineHeightScale} !important; letter-spacing: ${letterSpacing}px !important; }`
-    ];
+    const css = [];
+
+    // Keep the original page untouched until the user chooses a non-default control.
+    if (fontSizeScale !== defaults.fontSizeScale) {
+      css.push(`html { font-size: ${fontSizePx}px !important; }`);
+      css.push(`${readableTargets} { font-size: ${fontSizePx}px !important; }`);
+    }
+
+    if (lineHeightScale !== defaults.lineHeightScale) {
+      css.push(`${readableTargets} { line-height: ${lineHeightScale} !important; }`);
+    }
+
+    if (letterSpacing !== defaults.letterSpacing) {
+      css.push(`${readableTargets} { letter-spacing: ${letterSpacing}px !important; }`);
+    }
 
     if (fontFamily) {
       css.push(`${readableTargets} { font-family: ${fontFamily} !important; }`);
@@ -61,7 +77,7 @@
       filters.push('saturate(1.1)');
     }
 
-    if (saturationScale !== 1) {
+    if (saturationScale !== defaults.saturationScale) {
       filters.push(`saturate(${saturationScale})`);
     }
 
@@ -85,8 +101,15 @@
   }
 
   function applySettings(settings) {
+    const css = buildCss(settings || {});
+
+    if (!css) {
+      resetSettings();
+      return;
+    }
+
     const style = getStyleElement();
-    style.textContent = buildCss(settings || {});
+    style.textContent = css;
   }
 
   function resetSettings() {
